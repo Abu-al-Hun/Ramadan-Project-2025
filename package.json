@@ -1,0 +1,21 @@
+{
+  "name": "ramadan-project-2025",
+  "version": "1.0.0",
+  "description": "Ribot Islamic integrated discord",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Wick Studio",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/voice": "^0.18.0",
+    "better-sqlite3": "^11.8.1",
+    "canvas": "^3.1.0",
+    "discord.js": "^14.17.3",
+    "iimdb.js": "^2.1.1",
+    "node-fetch": "^3.3.2",
+    "wick.db": "^2.0.3"
+  }
+}
