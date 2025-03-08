@@ -22,6 +22,8 @@ const radioStations = {
   "Abdurahman As Soudais": "https://Qurango.net/radio/abdulrahman_alsudaes",
 };
 
+const connections = new Map();
+
 module.exports = {
   name: "إذاعة_القرأن",
   description: "إختر القارئ",
@@ -59,10 +61,10 @@ module.exports = {
     }
 
     const member = interaction.member;
-
     const voiceChannel = interaction.guild.channels.cache.get(
       config.voiceChannelId
     );
+
     if (!voiceChannel) {
       return interaction.reply({
         content:
@@ -81,19 +83,28 @@ module.exports = {
     try {
       await interaction.deferReply();
 
-      const connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: interaction.guild.id,
-        adapterCreator: interaction.guild.voiceAdapterCreator,
-      });
+      let connection = connections.get(interaction.guild.id);
+      let player;
 
-      const player = createAudioPlayer();
+      if (!connection) {
+        connection = joinVoiceChannel({
+          channelId: voiceChannel.id,
+          guildId: interaction.guild.id,
+          adapterCreator: interaction.guild.voiceAdapterCreator,
+        });
+
+        player = createAudioPlayer();
+        connection.subscribe(player);
+
+        connections.set(interaction.guild.id, { connection, player });
+      } else {
+        player = connections.get(interaction.guild.id).player;
+      }
 
       const stream = await fetch(stationUrl);
       const resource = createAudioResource(stream.body);
 
       player.play(resource);
-      connection.subscribe(player);
 
       player.on(AudioPlayerStatus.Playing, () => {
         interaction.editReply({
@@ -109,9 +120,6 @@ module.exports = {
         });
       });
 
-      player.on(AudioPlayerStatus.Idle, () => {
-        connection.destroy();
-      });
     } catch (error) {
       console.error(error);
       interaction.editReply({
